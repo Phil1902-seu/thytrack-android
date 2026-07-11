@@ -3,21 +3,64 @@ package com.thytrack.android.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.thytrack.android.data.repository.RecordRepository
+import com.thytrack.android.data.repository.SettingsRepository
 import com.thytrack.android.domain.model.LabRecord
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
 import javax.inject.Inject
 
 /**
- * 记录列表 ViewModel（Phase 2 将扩展搜索/排序/批量删/草稿）。
- * 演示 仓储(Flow) → StateFlow → Compose 的单向数据流。
+ * 记录列表 ViewModel（Phase 2）：仓储(Flow) → 搜索/排序 → StateFlow → Compose 单向数据流。
  */
 @HiltViewModel
 class RecordsViewModel @Inject constructor(
     repo: RecordRepository,
+    private val settings: SettingsRepository,
 ) : ViewModel() {
-    val records: StateFlow<List<LabRecord>> = repo.observeRecords()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.CHINA)
+
+    private val _search = MutableStateFlow("")
+    val search: StateFlow<String> = _search.asStateFlow()
+
+    val records: StateFlow<List<LabRecord>> = combine(
+        repo.observeRecords(),
+        _search,
+        settings.sortAscending,
+    ) { all, query, asc ->
+        val filtered = if (query.isBlank()) {
+            all
+        } else {
+            all.filter { r ->
+                sdf.format(r.date).contains(query, ignoreCase = true) ||
+                    r.hospital.contains(query, ignoreCase = true) ||
+                    r.notes.contains(query, ignoreCase = true)
+            }
+        }
+        val sorted = filtered.sortedBy { it.date.time }
+        if (asc) sorted else sorted.reversed()
+    }.stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun setSearch(s: String) {
+        _search.value = s
+    }
+
+    fun toggleSort() {
+        viewModelScope.launch {
+            settings.setSortAscending(!settings.sortAscending.first())
+        }
+    }
+
+    fun deleteRecord(id: String) {
+        viewModelScope.launch { repo.delete(id) }
+    }
 }

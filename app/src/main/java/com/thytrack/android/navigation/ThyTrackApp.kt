@@ -10,21 +10,20 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.thytrack.android.R
 import com.thytrack.android.ui.MedicationScreen
+import com.thytrack.android.ui.RecordDetailScreen
+import com.thytrack.android.ui.RecordEditScreen
 import com.thytrack.android.ui.RecordsScreen
 import com.thytrack.android.ui.SettingsScreen
 import com.thytrack.android.ui.TrendsScreen
@@ -42,11 +41,15 @@ private val TOP_LEVEL_ROUTES = listOf(
     TopLevelRoute("settings", R.string.tab_settings, android.R.drawable.ic_menu_preferences),
 )
 
+private val TOP_LEVEL_SET = setOf("records", "trends", "medications", "settings")
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThyTrackApp() {
     val navController = rememberNavController()
-    var selected by remember { mutableIntStateOf(0) }
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route?.substringBefore("/") ?: "records"
+    val showBottomBar = currentRoute in TOP_LEVEL_SET
 
     MaterialTheme(
         colorScheme = MaterialTheme.colorScheme.copy(
@@ -55,39 +58,39 @@ fun ThyTrackApp() {
         ),
     ) {
         Scaffold(
-            topBar = {
-                TopAppBar(title = { Text(stringResource(R.string.app_name)) })
-            },
             bottomBar = {
-                NavigationBar {
-                    TOP_LEVEL_ROUTES.forEachIndexed { index, route ->
-                        NavigationBarItem(
-                            selected = selected == index,
-                            onClick = {
-                                selected = index
-                                navController.navigate(route.route) {
-                                    popUpTo(navController.graph.startDestinationId) { saveState = true }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            },
-                            icon = {
-                                Icon(
-                                    painter = painterResource(route.iconRes),
-                                    contentDescription = stringResource(route.labelRes),
-                                )
-                            },
-                            label = { Text(stringResource(route.labelRes)) },
-                        )
+                if (showBottomBar) {
+                    NavigationBar {
+                        TOP_LEVEL_ROUTES.forEach { route ->
+                            NavigationBarItem(
+                                selected = currentRoute == route.route,
+                                onClick = {
+                                    navController.navigate(route.route) {
+                                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                                icon = {
+                                    Icon(
+                                        painter = painterResource(route.iconRes),
+                                        contentDescription = stringResource(route.labelRes),
+                                    )
+                                },
+                                label = { Text(stringResource(route.labelRes)) },
+                            )
+                        }
                     }
                 }
             },
             floatingActionButton = {
-                FloatingActionButton(onClick = { /* TODO Phase 2: 新增记录 */ }) {
-                    Icon(
-                        painter = painterResource(android.R.drawable.ic_menu_add),
-                        contentDescription = stringResource(R.string.action_add),
-                    )
+                if (currentRoute == "records") {
+                    FloatingActionButton(onClick = { navController.navigate("edit/new") }) {
+                        Icon(
+                            painter = painterResource(android.R.drawable.ic_menu_add),
+                            contentDescription = stringResource(R.string.action_add),
+                        )
+                    }
                 }
             },
         ) { innerPadding ->
@@ -98,10 +101,16 @@ fun ThyTrackApp() {
                     .fillMaxSize()
                     .padding(innerPadding),
             ) {
-                composable("records") { RecordsScreen() }
+                composable("records") { RecordsScreen(navController) }
                 composable("trends") { TrendsScreen() }
                 composable("medications") { MedicationScreen() }
                 composable("settings") { SettingsScreen() }
+                composable("edit/{id}") { backStack ->
+                    RecordEditScreen(navController, backStack.arguments?.getString("id"))
+                }
+                composable("detail/{id}") { backStack ->
+                    RecordDetailScreen(navController, backStack.arguments?.getString("id")!!)
+                }
             }
         }
     }

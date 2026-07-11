@@ -13,4 +13,19 @@
     <string name="cancel">取消</string>
     <string name="import_success">导入成功：成功 %1$d 条，跳过 %2$d 条</string>
     <string name="disclaimer">本应用为个人健康管理工具，不能替代专业医疗诊断。</string>
+
+    <string name="title_add_record">新增记录</string>
+    <string name="title_edit_record">编辑记录</string>
+    <string name="title_detail">记录详情</string>
+    <string name="back">返回</string>
+    <string name="save">保存</string>
+    <string name="field_date">日期</string>
+    <string name="field_hospital">医院</string>
+    <string name="field_notes">备注</string>
+    <string name="action_edit">编辑</string>
+    <string name="action_delete">删除</string>
+    <string name="action_search">搜索</string>
+    <string name="action_sort">排序</string>
+    <string name="input_invalid">输入有误</string>
+    <string name="detail_no_metrics">本条记录未填写任何指标</string>
 </resources>

@@ -13,4 +13,19 @@
     <string name="cancel">Cancel</string>
     <string name="import_success">Imported: %1$d success, %2$d skipped</string>
     <string name="disclaimer">This app is a personal health tool and does not replace professional medical advice.</string>
+
+    <string name="title_add_record">Add Record</string>
+    <string name="title_edit_record">Edit Record</string>
+    <string name="title_detail">Record Detail</string>
+    <string name="back">Back</string>
+    <string name="save">Save</string>
+    <string name="field_date">Date</string>
+    <string name="field_hospital">Hospital</string>
+    <string name="field_notes">Notes</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_search">Search</string>
+    <string name="action_sort">Sort</string>
+    <string name="input_invalid">Invalid input</string>
+    <string name="detail_no_metrics">No metrics filled in this record</string>
 </resources>
