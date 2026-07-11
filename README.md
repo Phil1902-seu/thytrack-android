@@ -1,5 +1,7 @@
 # 甲友记 ThyTrack — Android Native
 
+[![Android CI](https://github.com/Phil1902-seu/thytrack-android/actions/workflows/android.yml/badge.svg)](https://github.com/Phil1902-seu/thytrack-android/actions/workflows/android.yml)
+
 甲状腺术后健康追踪应用 · **原生 Android（Kotlin + Jetpack Compose）** 重写版。
 
 > ⚠️ 声明：本应用为个人健康管理工具，不能替代专业医疗诊断。
