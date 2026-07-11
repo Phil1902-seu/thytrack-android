@@ -44,7 +44,7 @@ import androidx.navigation.NavController
 import com.thytrack.android.R
 import com.thytrack.android.data.local.MetricDefinitions
 import com.thytrack.android.data.local.ReferenceRanges
-import com.thytrack.android.domain.model.MetricField
+import com.thytrack.android.data.local.MetricField
 import com.thytrack.android.domain.model.RefRange
 import com.thytrack.android.util.ValueValidator
 import kotlinx.coroutines.launch
