@@ -23,7 +23,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class RecordsViewModel @Inject constructor(
-    repo: RecordRepository,
+    private val repo: RecordRepository,
     private val settings: SettingsRepository,
 ) : ViewModel() {
 
