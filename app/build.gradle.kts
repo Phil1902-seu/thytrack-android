@@ -10,6 +10,15 @@ android {
     namespace = "com.thytrack.android"
     compileSdk = 35
 
+    // 将 androidx.lifecycle 全组锁定到 2.8.7，避免传递依赖拉入要求 compileSdk 37 / AGP 9.1.0 的更高版本
+    configurations.all {
+        resolutionStrategy.eachDependency {
+            if (requested.group == "androidx.lifecycle") {
+                useVersion("2.8.7")
+            }
+        }
+    }
+
     defaultConfig {
         applicationId = "com.thytrack.android"
         minSdk = 26
