@@ -71,22 +71,27 @@ class DataStoreSettingsRepository @Inject constructor(
     }
 
     override val sortAscending = context.dataStore.data.map { it[sortAsc] ?: false }
-    override suspend fun setSortAscending(asc: Boolean) =
+    override suspend fun setSortAscending(asc: Boolean) {
         context.dataStore.edit { it[sortAsc] = asc }
+    }
 
     override val darkMode = context.dataStore.data.map { it[dark] ?: false }
-    override suspend fun setDarkMode(on: Boolean) =
+    override suspend fun setDarkMode(on: Boolean) {
         context.dataStore.edit { it[dark] = on }
+    }
 
     override val followUpIntervalMonths = context.dataStore.data.map { it[fuInterval] ?: 6 }
-    override suspend fun setFollowUpIntervalMonths(months: Int) =
+    override suspend fun setFollowUpIntervalMonths(months: Int) {
         context.dataStore.edit { it[fuInterval] = months }
+    }
 
     override val followUpAdvanceDays = context.dataStore.data.map { it[fuAdvance] ?: 7 }
-    override suspend fun setFollowUpAdvanceDays(days: Int) =
+    override suspend fun setFollowUpAdvanceDays(days: Int) {
         context.dataStore.edit { it[fuAdvance] = days }
+    }
 
     override val ocrConsentGiven = context.dataStore.data.map { it[ocrConsent] ?: false }
-    override suspend fun setOcrConsentGiven(given: Boolean) =
+    override suspend fun setOcrConsentGiven(given: Boolean) {
         context.dataStore.edit { it[ocrConsent] = given }
+    }
 }

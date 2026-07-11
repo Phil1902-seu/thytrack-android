@@ -10,7 +10,7 @@ object XAxisStrideCalculator {
     fun calculate(dates: List<Date>): XAxisStride {
         if (dates.size < 2) return XAxisStride.MONTH
         val sorted = dates.sorted()
-        val span = ((sorted.last.time - sorted.first.time) / 86_400_000L).toInt()
+        val span = ((sorted.last().time - sorted.first().time) / 86_400_000L).toInt()
         return when {
             span < 180 -> XAxisStride.MONTH
             span < 730 -> XAxisStride.QUARTER
