@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.thytrack.android.domain.model.PatientInfo
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.Date
@@ -38,7 +39,7 @@ interface SettingsRepository {
 
 @Singleton
 class DataStoreSettingsRepository @Inject constructor(
-    private val context: Context,
+    @ApplicationContext private val context: Context,
 ) : SettingsRepository {
 
     private val patientName = stringPreferencesKey("patient_name")
