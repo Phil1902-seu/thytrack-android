@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- 简化的蝴蝶/健康标记，白色 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M54,30 C44,18 26,20 26,38 C26,52 42,56 54,72 C66,56 82,52 82,38 C82,20 64,18 54,30 Z" />
+    <path
+        android:fillColor="#4A90D9"
+        android:pathData="M54,40 C49,34 40,35 40,43 C40,50 48,52 54,60 C60,52 68,50 68,43 C68,35 59,34 54,40 Z" />
+</vector>
