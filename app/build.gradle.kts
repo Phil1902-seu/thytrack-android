@@ -104,9 +104,8 @@ dependencies {
     implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp)
 
-    // CSV / PDF / 图表
+    // CSV / 图表（PDF 报告使用框架 PdfDocument，无第三方依赖）
     implementation(libs.commons.csv)
-    implementation(libs.pdfbox.android)
     implementation(libs.vico.compose)
 
     // 测试

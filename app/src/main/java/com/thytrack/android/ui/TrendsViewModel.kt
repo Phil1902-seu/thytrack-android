@@ -57,7 +57,7 @@ class TrendsViewModel @Inject constructor(
 
     fun exportPdf(context: Context, uri: Uri) {
         viewModelScope.launch {
-            val bytes = ReportPdf.generate(context, patientInfo.value, records.value)
+            val bytes = ReportPdf.generate(patientInfo.value, records.value)
             runCatching {
                 context.contentResolver.openOutputStream(uri)?.use { os ->
                     os.write(bytes)

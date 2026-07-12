@@ -1,87 +1,72 @@
 package com.thytrack.android.util
 
-import android.content.Context
+import android.graphics.Paint
+import android.graphics.pdf.PdfDocument
 import com.thytrack.android.domain.model.LabRecord
 import com.thytrack.android.domain.model.PatientInfo
-import org.apache.pdfbox.pdmodel.PDDocument
-import org.apache.pdfbox.pdmodel.PDPage
-import org.apache.pdfbox.pdmodel.PDPageContentStream
-import org.apache.pdfbox.pdmodel.common.PDRectangle
-import org.apache.pdfbox.pdmodel.font.PDType0Font
-import org.apache.pdfbox.pdmodel.font.PDType1Font
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 /**
- * PDF 化验报告生成（Phase 6.1）：基于 pdfbox-android。
- * 中文字体从 assets 加载（回退到内置 Helvetica，避免缺字文件导致崩溃）。
+ * PDF 化验报告生成（Phase 6.1）：基于 Android 框架 PdfDocument（无第三方依赖，
+ * 中文字形由系统字体渲染，避免外置 AAR 在编译期不可见的问题）。
  */
 object ReportPdf {
     private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.CHINA)
 
-    fun generate(context: Context, patient: PatientInfo, records: List<LabRecord>): ByteArray {
-        val doc = PDDocument()
-        val page = PDPage(PDRectangle.A4)
-        doc.addPage(page)
-        val content = PDPageContentStream(doc, page)
+    fun generate(patient: PatientInfo, records: List<LabRecord>): ByteArray {
+        val doc = PdfDocument()
+        val paint = Paint().apply { textSize = 11f }
+        val titlePaint = Paint().apply { textSize = 16f; isFakeBoldText = true }
+        val headerPaint = Paint().apply { textSize = 11f; isFakeBoldText = true }
 
-        val font = loadChineseFont(context, doc)
-        val bold = font ?: PDType1Font.HELVETICA_BOLD
+        var page = doc.startPage(PdfDocument.PageInfo.Builder(595, 842, 1).create())
+        var canvas = page.canvas
+        var y = 50f
+        val left = 40f
 
-        var y = 800f
-        val left = 50f
-        val line = 18f
-
-        fun text(s: String, size: Float = 11f, useBold: Boolean = false) {
-            content.beginText()
-            content.setFont(if (useBold) bold else (font ?: PDType1Font.HELVETICA), size)
-            content.newLineAtOffset(left, y)
-            content.showText(s)
-            content.endText()
-            y -= line
+        fun ensureSpace(need: Float) {
+            if (y + need > 820f) {
+                doc.finishPage(page)
+                page = doc.startPage(PdfDocument.PageInfo.Builder(595, 842, 2).create())
+                canvas = page.canvas
+                y = 50f
+            }
         }
 
-        text("甲友记 ThyTrack · 化验报告", 16f, useBold = true)
-        text("患者：${patient.name.ifEmpty { "—" }}${if (patient.age > 0) "（${patient.age}岁）" else ""}")
-        if (patient.pathology.isNotBlank()) text("病理：${patient.pathology}")
-        text("共 ${records.size} 条记录")
-        y -= 6f
-        text("日期        医院        TSH     FT4     Tg", 11f, useBold = true)
+        canvas.drawText("甲友记 ThyTrack · 化验报告", left, y, titlePaint); y += 24f
+        canvas.drawText(
+            "患者：${patient.name.ifEmpty { "—" }}${if (patient.age > 0) "（${patient.age}岁）" else ""}",
+            left, y, paint,
+        ); y += 18f
+        if (patient.pathology.isNotBlank()) {
+            canvas.drawText("病理：${patient.pathology}", left, y, paint); y += 18f
+        }
+        canvas.drawText("共 ${records.size} 条记录", left, y, paint); y += 18f
+        y += 6f
+        canvas.drawText("日期        医院            TSH     FT4     Tg", left, y, headerPaint); y += 18f
 
         records.sortedBy { it.date.time }.forEach { r ->
+            ensureSpace(18f)
             val row = buildString {
-                append(pad(sdf.format(r.date), 11))
-                append(pad(r.hospital.ifEmpty { "—" }, 10))
-                append(pad(r.tsh?.toString() ?: "—", 7))
-                append(pad(r.ft4?.toString() ?: "—", 7))
+                append(sdf.format(r.date).padEnd(11))
+                append((r.hospital.ifEmpty { "—" }).take(8).padEnd(10))
+                append((r.tsh?.toString() ?: "—").padEnd(7))
+                append((r.ft4?.toString() ?: "—").padEnd(7))
                 append(r.tg?.toString() ?: "—")
             }
-            text(row, 10f)
-            if (y < 60f) {
-                content.close()
-                val np = PDPage(PDRectangle.A4)
-                doc.addPage(np)
-                val nc = PDPageContentStream(doc, np)
-                // 续页复用同一 content 引用不便，简单处理：仅第一页
-                nc.close()
-                y = 800f
-            }
+            canvas.drawText(row, left, y, paint)
+            y += 18f
         }
+        ensureSpace(18f)
+        y += 10f
+        canvas.drawText("免责声明：本报告由个人健康管理工具生成，不能替代专业医疗诊断。", left, y, paint)
 
-        content.close()
+        doc.finishPage(page)
         val out = ByteArrayOutputStream()
-        doc.save(out)
+        doc.writeTo(out)
         doc.close()
         return out.toByteArray()
     }
-
-    private fun pad(s: String, n: Int): String = s.take(n).padEnd(n)
-
-    @Suppress("DEPRECATION")
-    private fun loadChineseFont(context: Context, doc: PDDocument): PDType0Font? = runCatching {
-        context.assets.open("NotoSansSC-Regular.ttf").use { stream ->
-            PDType0Font.load(doc, stream)
-        }
-    }.getOrNull()
 }
