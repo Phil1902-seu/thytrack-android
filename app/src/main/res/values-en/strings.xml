@@ -5,6 +5,9 @@
     <string name="tab_medications">Meds</string>
     <string name="tab_settings">Settings</string>
     <string name="action_add">Add Record</string>
+    <string name="action_export_csv">Export CSV</string>
+    <string name="action_import_csv">Import CSV</string>
+    <string name="export_done">Exported %1$d records</string>
     <string name="search_hint">Search date / hospital / notes</string>
     <string name="empty_records">No records yet. Tap the button to add one.</string>
     <string name="confirm_delete">Confirm Delete</string>

@@ -21,19 +21,24 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import android.widget.Toast
 import com.thytrack.android.R
 import com.thytrack.android.domain.model.LabRecord
 import java.text.SimpleDateFormat
@@ -44,8 +49,22 @@ import java.util.Locale
 fun RecordsScreen(navController: NavController, viewModel: RecordsViewModel = hiltViewModel()) {
     val records by viewModel.records.collectAsStateWithLifecycle()
     val search by viewModel.search.collectAsStateWithLifecycle()
+    val context = LocalContext.current
     var searching by remember { mutableStateOf(false) }
     var pendingDelete by remember { mutableStateOf<String?>(null) }
+
+    val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
+        uri ?: return@rememberLauncherForActivityResult
+        viewModel.exportCsv(context, uri)
+    }
+    val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        uri ?: return@rememberLauncherForActivityResult
+        viewModel.importCsv(context, uri)
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.toast.collect { msg -> Toast.makeText(context, msg, Toast.LENGTH_SHORT).show() }
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
@@ -63,6 +82,18 @@ fun RecordsScreen(navController: NavController, viewModel: RecordsViewModel = hi
                 { Text(stringResource(R.string.tab_records)) }
             },
             actions = {
+                IconButton(onClick = { exportLauncher.launch("thytrack_records.csv") }) {
+                    Icon(
+                        painter = painterResource(android.R.drawable.ic_menu_save),
+                        contentDescription = stringResource(R.string.action_export_csv),
+                    )
+                }
+                IconButton(onClick = { importLauncher.launch(arrayOf("text/csv", "*/*")) }) {
+                    Icon(
+                        painter = painterResource(android.R.drawable.ic_menu_upload),
+                        contentDescription = stringResource(R.string.action_import_csv),
+                    )
+                }
                 IconButton(onClick = { searching = !searching; if (!searching) viewModel.setSearch("") }) {
                     Icon(
                         painter = painterResource(android.R.drawable.ic_menu_search),
