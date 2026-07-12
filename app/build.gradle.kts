@@ -89,6 +89,9 @@ dependencies {
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.hilt.compiler)
 
+    // 运行时多语言切换（Phase 5.2）
+    implementation(libs.androidx.appcompat)
+
     // 数据层
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)

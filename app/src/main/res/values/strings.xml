@@ -68,6 +68,13 @@
     <string name="setting_webdav_user">账号</string>
     <string name="setting_webdav_pass">密码</string>
     <string name="setting_backup_note">WebDAV 自动同步将在后续版本上线。</string>
+    <string name="action_backup_now">立即备份</string>
+    <string name="action_restore_now">从云端恢复</string>
+    <string name="backup_empty">请先填写 WebDAV 地址</string>
+    <string name="backup_done">已备份 %1$d 条记录到 WebDAV</string>
+    <string name="backup_failed">备份失败：%1$s</string>
+    <string name="restore_done">已从 WebDAV 恢复 %1$d 条记录</string>
+    <string name="restore_failed">恢复失败：%1$s</string>
 
     <string name="title_about">关于</string>
     <string name="setting_about_version">版本</string>

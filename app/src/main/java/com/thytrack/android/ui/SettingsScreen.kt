@@ -2,6 +2,8 @@ package com.thytrack.android.ui
 
 import android.Manifest
 import android.os.Build
+import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -10,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -43,10 +46,17 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
     val webdavPass by viewModel.webdavPass.collectAsStateWithLifecycle()
     val patient by viewModel.patientInfo.collectAsStateWithLifecycle()
 
+    val context = LocalContext.current
+    val activity = context as? ComponentActivity
+
     // 运行时申请通知权限（Android 13+ 开启提醒时）
     val postNotificationPermission = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission(),
     ) { viewModel.toggleReminder(true) }
+
+    LaunchedEffect(Unit) {
+        viewModel.toast.collect { msg -> Toast.makeText(context, msg, Toast.LENGTH_SHORT).show() }
+    }
 
     Scaffold(
         topBar = { TopAppBar(title = { Text(stringResource(R.string.tab_settings)) }) },
@@ -62,7 +72,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             // —— 通用 ——
             SectionCard(stringResource(R.string.title_settings_general)) {
                 SwitchRow(stringResource(R.string.setting_dark_mode), darkMode) { viewModel.setDarkMode(it) }
-                LanguageRow(language) { viewModel.setLanguage(it) }
+                LanguageRow(language) { code -> viewModel.setLanguage(code); activity?.recreate() }
                 HorizontalDivider()
                 PatientInfoEditor(
                     patient = patient,
@@ -108,6 +118,17 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
                     color = MaterialTheme.colorScheme.outline,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                 )
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Button(onClick = viewModel::backupToWebDav, modifier = Modifier.weight(1f)) {
+                        Text(stringResource(R.string.action_backup_now))
+                    }
+                    OutlinedButton(onClick = viewModel::restoreFromWebDav, modifier = Modifier.weight(1f)) {
+                        Text(stringResource(R.string.action_restore_now))
+                    }
+                }
             }
 
             // —— 关于 ——
