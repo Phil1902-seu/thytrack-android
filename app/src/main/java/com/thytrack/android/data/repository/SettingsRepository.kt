@@ -35,6 +35,21 @@ interface SettingsRepository {
 
     val ocrConsentGiven: Flow<Boolean>
     suspend fun setOcrConsentGiven(given: Boolean)
+
+    val reminderEnabled: Flow<Boolean>
+    suspend fun setReminderEnabled(on: Boolean)
+
+    val language: Flow<String>
+    suspend fun setLanguage(lang: String)
+
+    val webdavUrl: Flow<String>
+    suspend fun setWebdavUrl(url: String)
+
+    val webdavUser: Flow<String>
+    suspend fun setWebdavUser(user: String)
+
+    val webdavPass: Flow<String>
+    suspend fun setWebdavPass(pass: String)
 }
 
 @Singleton
@@ -51,6 +66,11 @@ class DataStoreSettingsRepository @Inject constructor(
     private val fuInterval = intPreferencesKey("followup_interval_months")
     private val fuAdvance = intPreferencesKey("followup_advance_days")
     private val ocrConsent = booleanPreferencesKey("ocr_consent")
+    private val reminderOn = booleanPreferencesKey("reminder_on")
+    private val lang = stringPreferencesKey("language")
+    private val wdUrl = stringPreferencesKey("webdav_url")
+    private val wdUser = stringPreferencesKey("webdav_user")
+    private val wdPass = stringPreferencesKey("webdav_pass")
 
     override fun observePatientInfo(): Flow<PatientInfo> =
         context.dataStore.data.map { p ->
@@ -94,5 +114,30 @@ class DataStoreSettingsRepository @Inject constructor(
     override val ocrConsentGiven = context.dataStore.data.map { it[ocrConsent] ?: false }
     override suspend fun setOcrConsentGiven(given: Boolean) {
         context.dataStore.edit { it[ocrConsent] = given }
+    }
+
+    override val reminderEnabled = context.dataStore.data.map { it[reminderOn] ?: true }
+    override suspend fun setReminderEnabled(on: Boolean) {
+        context.dataStore.edit { it[reminderOn] = on }
+    }
+
+    override val language = context.dataStore.data.map { it[lang] ?: "zh" }
+    override suspend fun setLanguage(l: String) {
+        context.dataStore.edit { it[lang] = l }
+    }
+
+    override val webdavUrl = context.dataStore.data.map { it[wdUrl] ?: "" }
+    override suspend fun setWebdavUrl(url: String) {
+        context.dataStore.edit { it[wdUrl] = url }
+    }
+
+    override val webdavUser = context.dataStore.data.map { it[wdUser] ?: "" }
+    override suspend fun setWebdavUser(user: String) {
+        context.dataStore.edit { it[wdUser] = user }
+    }
+
+    override val webdavPass = context.dataStore.data.map { it[wdPass] ?: "" }
+    override suspend fun setWebdavPass(pass: String) {
+        context.dataStore.edit { it[wdPass] = pass }
     }
 }

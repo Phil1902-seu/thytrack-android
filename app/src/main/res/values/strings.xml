@@ -33,4 +33,40 @@
     <string name="legend_normal">正常</string>
     <string name="legend_abnormal">异常</string>
     <string name="legend_dose">优甲乐剂量</string>
+
+    <!-- 用药时间线（Phase 4） -->
+    <string name="empty_medications">暂无用药记录，点击右下角按钮添加</string>
+    <string name="title_medication">用药变更</string>
+    <string name="field_drug">药物</string>
+    <string name="field_old_dose">原剂量 (μg)</string>
+    <string name="field_new_dose">新剂量 (μg)</string>
+    <string name="field_reason">原因</string>
+
+    <!-- 设置五面板（Phase 4） -->
+    <string name="title_settings_general">通用</string>
+    <string name="setting_dark_mode">深色模式</string>
+    <string name="setting_language">语言</string>
+    <string name="patient_name">姓名</string>
+    <string name="patient_age">年龄</string>
+    <string name="patient_surgery">手术日期</string>
+    <string name="patient_pathology">病理诊断</string>
+    <string name="action_save_patient">保存患者信息</string>
+
+    <string name="title_follow_up">随访提醒</string>
+    <string name="setting_reminder">开启复诊提醒</string>
+    <string name="setting_follow_up_interval">复查间隔（月）</string>
+    <string name="setting_follow_up_advance">提前提醒（天）</string>
+
+    <string name="title_ocr">OCR 识别</string>
+    <string name="setting_ocr_consent">允许 OCR 解析化验单</string>
+
+    <string name="title_backup">备份</string>
+    <string name="setting_webdav_url">WebDAV 地址</string>
+    <string name="setting_webdav_user">账号</string>
+    <string name="setting_webdav_pass">密码</string>
+    <string name="setting_backup_note">WebDAV 自动同步将在后续版本上线。</string>
+
+    <string name="title_about">关于</string>
+    <string name="setting_about_version">版本</string>
+    <string name="setting_about_disclaimer">免责声明</string>
 </resources>

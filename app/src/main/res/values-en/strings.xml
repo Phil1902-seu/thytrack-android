@@ -33,4 +33,40 @@
     <string name="legend_normal">Normal</string>
     <string name="legend_abnormal">Abnormal</string>
     <string name="legend_dose">Levothyroxine dose</string>
+
+    <!-- Medication timeline (Phase 4) -->
+    <string name="empty_medications">No medications yet. Tap the button to add.</string>
+    <string name="title_medication">Medication Change</string>
+    <string name="field_drug">Drug</string>
+    <string name="field_old_dose">Old dose (μg)</string>
+    <string name="field_new_dose">New dose (μg)</string>
+    <string name="field_reason">Reason</string>
+
+    <!-- Settings five panels (Phase 4) -->
+    <string name="title_settings_general">General</string>
+    <string name="setting_dark_mode">Dark mode</string>
+    <string name="setting_language">Language</string>
+    <string name="patient_name">Name</string>
+    <string name="patient_age">Age</string>
+    <string name="patient_surgery">Surgery date</string>
+    <string name="patient_pathology">Pathology</string>
+    <string name="action_save_patient">Save patient info</string>
+
+    <string name="title_follow_up">Follow-up</string>
+    <string name="setting_reminder">Enable follow-up reminder</string>
+    <string name="setting_follow_up_interval">Follow-up interval (months)</string>
+    <string name="setting_follow_up_advance">Advance notice (days)</string>
+
+    <string name="title_ocr">OCR</string>
+    <string name="setting_ocr_consent">Allow OCR to parse reports</string>
+
+    <string name="title_backup">Backup</string>
+    <string name="setting_webdav_url">WebDAV URL</string>
+    <string name="setting_webdav_user">User</string>
+    <string name="setting_webdav_pass">Password</string>
+    <string name="setting_backup_note">WebDAV auto-sync arrives in a later update.</string>
+
+    <string name="title_about">About</string>
+    <string name="setting_about_version">Version</string>
+    <string name="setting_about_disclaimer">Disclaimer</string>
 </resources>

@@ -21,7 +21,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.thytrack.android.R
-import com.thytrack.android.ui.MedicationScreen
+import com.thytrack.android.ui.MedicationTimelineScreen
 import com.thytrack.android.ui.RecordDetailScreen
 import com.thytrack.android.ui.RecordEditScreen
 import com.thytrack.android.ui.RecordsScreen
@@ -103,7 +103,7 @@ fun ThyTrackApp() {
             ) {
                 composable("records") { RecordsScreen(navController) }
                 composable("trends") { TrendsScreen() }
-                composable("medications") { MedicationScreen() }
+                composable("medications") { MedicationTimelineScreen() }
                 composable("settings") { SettingsScreen() }
                 composable("edit/{id}") { backStack ->
                     RecordEditScreen(navController, backStack.arguments?.getString("id"))
