@@ -28,4 +28,9 @@
     <string name="action_sort">排序</string>
     <string name="input_invalid">输入有误</string>
     <string name="detail_no_metrics">本条记录未填写任何指标</string>
+
+    <string name="title_select_metric">指标</string>
+    <string name="legend_normal">正常</string>
+    <string name="legend_abnormal">异常</string>
+    <string name="legend_dose">优甲乐剂量</string>
 </resources>

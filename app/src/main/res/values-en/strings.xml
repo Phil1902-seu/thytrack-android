@@ -28,4 +28,9 @@
     <string name="action_sort">Sort</string>
     <string name="input_invalid">Invalid input</string>
     <string name="detail_no_metrics">No metrics filled in this record</string>
+
+    <string name="title_select_metric">Metric</string>
+    <string name="legend_normal">Normal</string>
+    <string name="legend_abnormal">Abnormal</string>
+    <string name="legend_dose">Levothyroxine dose</string>
 </resources>
