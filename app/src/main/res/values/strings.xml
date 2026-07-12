@@ -76,6 +76,10 @@
     <string name="restore_done">已从 WebDAV 恢复 %1$d 条记录</string>
     <string name="restore_failed">恢复失败：%1$s</string>
 
+    <string name="action_export_pdf">导出 PDF 报告</string>
+    <string name="pdf_export_done">已导出 %1$d 条记录的 PDF 报告</string>
+    <string name="pdf_export_failed">PDF 导出失败：%1$s</string>
+
     <string name="title_about">关于</string>
     <string name="setting_about_version">版本</string>
     <string name="setting_about_disclaimer">免责声明</string>
