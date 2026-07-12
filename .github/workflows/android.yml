@@ -44,8 +44,13 @@ jobs:
 
   release:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' && secrets.KEYSTORE_BASE64 != '' }}
+    # 注意：job 级 if 不能引用 secrets 上下文（会导致整条工作流在创建作业前失败，
+    # 表现为 0 个作业、瞬间 completed/failure、无日志、不可重跑）。
+    # 因此这里只判断事件来源，密钥相关步骤改用 step 级 if + env 门控。
+    if: ${{ github.event_name == 'push' }}
     needs: build
+    env:
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -65,8 +70,7 @@ jobs:
           yes | sdkmanager --licenses > /dev/null || true
 
       - name: Decode signing keystore
-        env:
-          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        if: ${{ env.KEYSTORE_BASE64 != '' }}
         run: echo "$KEYSTORE_BASE64" | base64 -d > release-keystore.jks
 
       - name: Setup Gradle
@@ -76,6 +80,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build signed release APK
+        if: ${{ env.KEYSTORE_BASE64 != '' }}
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
@@ -84,6 +89,7 @@ jobs:
         run: ./gradlew assembleRelease --no-daemon
 
       - name: Upload release APK
+        if: ${{ env.KEYSTORE_BASE64 != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: thytrack-release-apk
