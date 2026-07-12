@@ -192,7 +192,8 @@ private class ReferenceBandDecoration(
     override fun drawUnderLayers(context: CartesianDrawingContext) {
         if (high <= low) return
         val b = context.layerBounds
-        val yRange = context.ranges.getYRange(Axis.Position.Vertical.Start)
+        // getYRange 在数据尚未提交（首帧）时返回 null，必须先判空，否则 NPE 导致整页闪退
+        val yRange = context.ranges.getYRange(Axis.Position.Vertical.Start) ?: return
         val len = yRange.length
         if (len <= 0.0) return
         val yLow = b.bottom - (((low - yRange.minY) / len) * b.height()).toFloat()
