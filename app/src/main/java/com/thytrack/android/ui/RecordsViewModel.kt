@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.thytrack.android.R
 import com.thytrack.android.data.repository.RecordRepository
 import com.thytrack.android.data.repository.SettingsRepository
 import com.thytrack.android.domain.model.LabRecord
@@ -19,7 +20,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.nio.charset.Charsets
+import java.nio.charset.StandardCharsets
 import java.text.SimpleDateFormat
 import java.util.Locale
 import javax.inject.Inject
@@ -80,7 +81,7 @@ class RecordsViewModel @Inject constructor(
             val csv = CsvHelper.toCsv(records)
             runCatching {
                 context.contentResolver.openOutputStream(uri)?.use { os ->
-                    os.write(csv.toByteArray(Charsets.UTF_8))
+                    os.write(csv.toByteArray(StandardCharsets.UTF_8))
                 }
             }
             _toast.tryEmit(context.getString(R.string.export_done, records.size))
