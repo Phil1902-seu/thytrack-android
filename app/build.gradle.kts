@@ -92,6 +92,9 @@ dependencies {
     // 运行时多语言切换（Phase 5.2）
     implementation(libs.androidx.appcompat)
 
+    // OCR 化验单识别（Phase 6.2，ML Kit 中文识别）
+    implementation(libs.mlkit.text.recognition.chinese)
+
     // 数据层
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)

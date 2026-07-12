@@ -1,6 +1,9 @@
 package com.thytrack.android.ui
 
 import android.app.DatePickerDialog
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -46,6 +49,7 @@ import com.thytrack.android.data.local.MetricDefinitions
 import com.thytrack.android.data.local.ReferenceRanges
 import com.thytrack.android.data.local.MetricField
 import com.thytrack.android.domain.model.RefRange
+import com.thytrack.android.util.OcrParser
 import com.thytrack.android.util.ValueValidator
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -69,6 +73,28 @@ fun RecordEditScreen(navController: NavController, recordId: String?) {
     val metricText by vm.metricText.collectAsStateWithLifecycle()
     val isNew by vm.isNew.collectAsStateWithLifecycle()
     val saveError by vm.saveError.collectAsStateWithLifecycle()
+    val ocrConsent by vm.ocrConsent.collectAsStateWithLifecycle()
+    var ocrBusy by remember { mutableStateOf(false) }
+
+    val ocrLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        uri ?: return@rememberLauncherForActivityResult
+        if (!ocrConsent) {
+            Toast.makeText(context, context.getString(R.string.ocr_need_consent), Toast.LENGTH_LONG).show()
+            return@rememberLauncherForActivityResult
+        }
+        scope.launch {
+            ocrBusy = true
+            runCatching { OcrParser.parseImage(context, uri) }
+                .onSuccess { map ->
+                    vm.applyOcr(map)
+                    Toast.makeText(context, context.getString(R.string.ocr_done, map.size), Toast.LENGTH_SHORT).show()
+                }
+                .onFailure { e ->
+                    Toast.makeText(context, context.getString(R.string.ocr_failed, e.message ?: ""), Toast.LENGTH_LONG).show()
+                }
+            ocrBusy = false
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -83,6 +109,15 @@ fun RecordEditScreen(navController: NavController, recordId: String?) {
                     }
                 },
                 actions = {
+                    IconButton(
+                        onClick = { ocrLauncher.launch("image/*") },
+                        enabled = !ocrBusy,
+                    ) {
+                        Icon(
+                            painter = painterResource(android.R.drawable.ic_menu_camera),
+                            contentDescription = stringResource(R.string.action_ocr),
+                        )
+                    }
                     TextButton(onClick = {
                         scope.launch { if (vm.save()) navController.popBackStack() }
                     }) { Text(stringResource(R.string.save)) }

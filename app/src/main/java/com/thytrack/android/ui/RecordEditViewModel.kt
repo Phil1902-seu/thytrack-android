@@ -3,6 +3,7 @@ package com.thytrack.android.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.thytrack.android.data.repository.RecordRepository
+import com.thytrack.android.data.repository.SettingsRepository
 import com.thytrack.android.domain.model.LabRecord
 import com.thytrack.android.domain.model.RecordSource
 import com.thytrack.android.util.LabRecordFields
@@ -11,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -19,13 +21,14 @@ import java.util.UUID
 import javax.inject.Inject
 
 /**
- * 新增 / 编辑化验记录 ViewModel（Phase 2）。
+ * 新增 / 编辑化验记录 ViewModel（Phase 2 / Phase 6.2）。
  * 记录主体（date/hospital/notes）以 [LabRecord] 为源，29 指标以原始文本 [metricText] 暂存，
- * 保存时统一解析为 Double?，非法输入置 [saveError]。
+ * 保存时统一解析为 Double?，非法输入置 [saveError]。Phase 6.2 扩展 OCR 授权与字段回填。
  */
 @HiltViewModel
 class RecordEditViewModel @Inject constructor(
     private val repo: RecordRepository,
+    private val settings: SettingsRepository,
 ) : ViewModel() {
 
     private val _record = MutableStateFlow<LabRecord?>(null)
@@ -39,6 +42,12 @@ class RecordEditViewModel @Inject constructor(
 
     private val _saveError = MutableStateFlow<String?>(null)
     val saveError: StateFlow<String?> = _saveError.asStateFlow()
+
+    val ocrConsent: StateFlow<Boolean> = settings.ocrConsentGiven.stateIn(
+        viewModelScope,
+        kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
+        false,
+    )
 
     fun load(recordId: String?) {
         viewModelScope.launch {
@@ -78,6 +87,11 @@ class RecordEditViewModel @Inject constructor(
 
     fun clearError() {
         _saveError.value = null
+    }
+
+    /** OCR 回填：将识别出的指标直接写入文本暂存（保存时统一解析）。 */
+    fun applyOcr(values: Map<String, Double>) {
+        values.forEach { (key, v) -> setMetric(key, if (v % 1.0 == 0.0) v.toLong().toString() else v.toString()) }
     }
 
     /** 保存；成功返回 true，校验失败返回 false 并设置 [saveError]。 */
