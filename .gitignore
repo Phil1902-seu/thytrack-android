@@ -11,3 +11,7 @@ local.properties
 keystore.properties
 release.keystore
 app/release/
+
+# CI 生成的签名密钥（来自 secret，不入库）
+release-keystore.jks
+*.jks

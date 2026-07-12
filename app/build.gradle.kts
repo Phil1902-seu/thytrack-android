@@ -40,6 +40,21 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
+        }
+    }
+
+    signingConfigs {
+        create("release") {
+            val base64 = System.getenv("KEYSTORE_BASE64")
+            if (base64 != null) {
+                val keystoreFile = java.io.File(rootProject.projectDir, "release-keystore.jks")
+                keystoreFile.writeBytes(java.util.Base64.getDecoder().decode(base64))
+                storeFile = keystoreFile
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS")
+                keyPassword = System.getenv("KEY_PASSWORD")
+            }
         }
     }
 
