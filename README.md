@@ -92,6 +92,8 @@ app/src/main/java/com/thytrack/android/
 
 首次在 Android Studio 打开时 Gradle 会解析依赖；版本号见 `gradle/libs.versions.toml`，可按需升级。
 
+**CI 发布签名**：`android.yml` 含 `build`（debug）与 `release`（签名 release）两个作业。release 作业在 push 到 `main` 且仓库配置了 `KEYSTORE_BASE64`/`KEYSTORE_PASSWORD`/`KEY_ALIAS`/`KEY_PASSWORD` 四个 secret 时自动解码密钥库并执行 `assembleRelease`，产物上传为 `thytrack-release-apk`。本地无密钥时 `signingConfigs` 自动跳过，`assembleDebug` 不受影响。
+
 ---
 
 ## 实施进度（见 PLAN.md）
@@ -100,11 +102,11 @@ app/src/main/java/com/thytrack/android/
 |-------|------|------|
 | 0 | 项目基座与 CI | ✅ 脚手架就绪 |
 | 1 | 数据层（Room/参考范围/指标） | ✅ 已实现 |
-| 2 | 记录列表/录入/详情/草稿 | 🟡 列表骨架就绪 |
-| 3 | 趋势图（Vico） | ⬜ 计划 |
-| 4 | 用药/设置/通知 | ⬜ 计划 |
-| 5 | CSV/WebDAV/i18n | ⬜ 计划 |
-| 6 | OCR/PDF/收尾 | ⬜ 计划 |
+| 2 | 记录列表/录入/详情/草稿 | ✅ 已实现 |
+| 3 | 趋势图（Vico） | ✅ 已实现 |
+| 4 | 用药/设置/通知 | ✅ 已实现 |
+| 5 | CSV/WebDAV/i18n | ✅ 已实现 |
+| 6 | OCR/PDF/收尾 + 发布签名 | ✅ 全部完成（CI 双作业 green，release 已签名） |
 
 ---
 
