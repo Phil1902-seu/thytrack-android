@@ -48,7 +48,7 @@ object CsvHelper {
             // 例如代码侧 twoHpg / tgLipid / vitaminD / levothyroxineDose 可与导出侧
             // twohpg / tg_lipid / vitamin_d / levothyroxine_dose 正确匹配——否则 commons-csv
             // 在缺失列名时抛 IllegalArgumentException，整次导入会被上层 runCatching 吞掉成空列表。
-            val headerIndex = parser.headerMap ?: emptyMap()
+            val headerIndex = parser.headerMap ?: emptyMap<String, Int>()
             val normToOriginal = headerIndex.mapKeys { (name, _) ->
                 name.lowercase().replace("_", "").replace("-", "")
             }
