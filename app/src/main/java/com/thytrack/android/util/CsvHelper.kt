@@ -48,8 +48,10 @@ object CsvHelper {
             // 例如代码侧 twoHpg / tgLipid / vitaminD / levothyroxineDose 可与导出侧
             // twohpg / tg_lipid / vitamin_d / levothyroxine_dose 正确匹配——否则 commons-csv
             // 在缺失列名时抛 IllegalArgumentException，整次导入会被上层 runCatching 吞掉成空列表。
-            val headerIndex = parser.headerMap ?: emptyMap<String, Int>()
-            val normToOriginal = headerIndex.mapKeys { (name, _) ->
+            // 将平台类型 Map 物化为确定的 Map<String, Int>，避免 commons-csv 平台类型的星投影推断问题
+            val headerIndex: Map<String, Int> =
+                parser.headerMap?.map { (k, v) -> k to (v ?: 0) }?.toMap() ?: emptyMap()
+            val normToOriginal: Map<String, Int> = headerIndex.mapKeys { (name, _) ->
                 name.lowercase().replace("_", "").replace("-", "")
             }
             fun valueOf(rec: CSVRecord, rawKey: String): String? {
