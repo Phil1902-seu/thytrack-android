@@ -52,11 +52,11 @@ object CsvHelper {
             val normToOriginal = headerIndex.mapKeys { (name, _) ->
                 name.lowercase().replace("_", "").replace("-", "")
             }
-            val valueOf: (CSVRecord, String) -> String? = { rec, rawKey ->
+            fun valueOf(rec: CSVRecord, rawKey: String): String? {
                 val norm = rawKey.lowercase().replace("_", "").replace("-", "")
-                val original = normToOriginal[norm] ?: return@valueOf null
-                val idx = headerIndex[original] ?: return@valueOf null
-                runCatching { rec.get(idx) }.getOrNull()
+                val original = normToOriginal[norm] ?: return null
+                val idx = headerIndex[original] ?: return null
+                return runCatching { rec.get(idx) }.getOrNull()
             }
             for (rec in parser) {
                 val date = runCatching { sdf.parse(valueOf(rec, "date")) }.getOrNull() ?: Date()
