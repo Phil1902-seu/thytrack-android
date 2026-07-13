@@ -51,13 +51,13 @@ object CsvHelper {
             // 将平台类型 Map 物化为确定的 Map<String, Int>，避免 commons-csv 平台类型的星投影推断问题
             val headerIndex: Map<String, Int> =
                 parser.headerMap?.map { (k, v) -> k to (v ?: 0) }?.toMap() ?: emptyMap()
-            val normToOriginal: Map<String, Int> = headerIndex.mapKeys { (name, _) ->
+            // 归一化表头：normalizedName -> 列下标，使 camelCase 与 snake_case 互通
+            val normToIndex: Map<String, Int> = headerIndex.mapKeys { (name, _) ->
                 name.lowercase().replace("_", "").replace("-", "")
             }
             fun valueOf(rec: CSVRecord, rawKey: String): String? {
                 val norm = rawKey.lowercase().replace("_", "").replace("-", "")
-                val original = normToOriginal[norm] ?: return null
-                val idx = headerIndex[original] ?: return null
+                val idx = normToIndex[norm] ?: return null
                 return runCatching { rec.get(idx) }.getOrNull()
             }
             for (rec in parser) {
