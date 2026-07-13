@@ -78,6 +78,15 @@ fun MetricChart(
     val doseX = dosePoints.map { it.first.toDouble() }
     val doseY = dosePoints.map { it.second }
 
+    // Vico 的 lineSeries {} 不允许传入空列表，否则抛 IllegalArgumentException: Series can't be empty。
+    // 因此必须预先判断每条序列是否有数据；为空时用透明占位点 (placeholderX, placeholderY) 替代，
+    // 既保证模型始终合法（≥1 条序列），又通过透明线/点保持图层与配色索引对齐、且不产生视觉噪点。
+    val hasMain = xList.isNotEmpty() && yList.isNotEmpty()
+    val hasAbnormal = abnormalX.isNotEmpty() && abnormalY.isNotEmpty()
+    val hasDose = isTsh && doseX.isNotEmpty() && doseY.isNotEmpty()
+    val placeholderX = 0.0
+    val placeholderY = if (ref.high > ref.low) (ref.low + ref.high) / 2.0 else 0.0
+
     val dateFmt = remember { SimpleDateFormat("yy/MM/dd", Locale.CHINA) }
     val xLabels = remember(records) { records.map { dateFmt.format(it.date) } }
     val medXs = remember(records, medications) { medications.map { xForDate(records, it.date.time) } }
@@ -86,15 +95,24 @@ fun MetricChart(
 
     LaunchedEffect(points, abnormalPoints, dosePoints, isTsh) {
         modelProducer.runTransaction {
-            lineSeries { series(xList, yList) }
-            lineSeries { series(abnormalX, abnormalY) }
-            if (isTsh) lineSeries { series(doseX, doseY) }
+            // 序列数量必须与图层数一致（main + abnormal + [dose]），故空序列用占位点补齐而非跳过。
+            if (hasMain) lineSeries { series(xList, yList) }
+            else lineSeries { series(listOf(placeholderX), listOf(placeholderY)) }
+
+            if (hasAbnormal) lineSeries { series(abnormalX, abnormalY) }
+            else lineSeries { series(listOf(placeholderX), listOf(placeholderY)) }
+
+            // dose 图层仅 TSH 存在，故 dose 序列也仅在此条件下发射，避免序列数/图层数不一致。
+            if (isTsh) {
+                if (hasDose) lineSeries { series(doseX, doseY) }
+                else lineSeries { series(listOf(placeholderX), listOf(placeholderY)) }
+            }
         }
     }
 
-    val mainColor = Color(0xFF4A90D9)
-    val abnormalColor = Color(0xFFE53935)
-    val doseColor = Color(0xFF8E24AA)
+    val mainColor = if (hasMain) Color(0xFF4A90D9) else Color.Transparent
+    val abnormalColor = if (hasAbnormal) Color(0xFFE53935) else Color.Transparent
+    val doseColor = if (hasDose) Color(0xFF8E24AA) else Color.Transparent
 
     val bottomAxis = HorizontalAxis.rememberBottom(
         valueFormatter = CartesianValueFormatter { _, value, _ ->
@@ -192,8 +210,8 @@ private class ReferenceBandDecoration(
     override fun drawUnderLayers(context: CartesianDrawingContext) {
         if (high <= low) return
         val b = context.layerBounds
-        // getYRange 在数据尚未提交（首帧）时返回 null，必须先判空，否则 NPE 导致整页闪退
-        val yRange = context.ranges.getYRange(Axis.Position.Vertical.Start) ?: return
+        // getYRange 在 Vico 2.1.0 中为非空返回；图表数据提交后绘制阶段可安全直接取值。
+        val yRange = context.ranges.getYRange(Axis.Position.Vertical.Start)
         val len = yRange.length
         if (len <= 0.0) return
         val yLow = b.bottom - (((low - yRange.minY) / len) * b.height()).toFloat()
