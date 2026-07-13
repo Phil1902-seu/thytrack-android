@@ -1,11 +1,15 @@
 package com.thytrack.android.ui
 
 import android.graphics.Paint
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -86,6 +90,23 @@ fun MetricChart(
     val hasDose = isTsh && doseX.isNotEmpty() && doseY.isNotEmpty()
     val placeholderX = 0.0
     val placeholderY = if (ref.high > ref.low) (ref.low + ref.high) / 2.0 else 0.0
+
+    // 没有任何可绘制的序列（无检验记录 / 所选指标无数值 / TSH 无剂量）时，直接展示空状态，
+    // 不构建 Vico 图表，彻底规避任何空数据 / 边界区间导致的崩溃。
+    val hasAnyData = hasMain || hasDose
+    if (!hasAnyData) {
+        Box(
+            modifier = modifier.fillMaxWidth().height(280.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                "暂无检验数据，无法绘制趋势",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.outline,
+            )
+        }
+        return
+    }
 
     val dateFmt = remember { SimpleDateFormat("yy/MM/dd", Locale.CHINA) }
     val xLabels = remember(records) { records.map { dateFmt.format(it.date) } }
